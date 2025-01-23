@@ -106,8 +106,8 @@ int main()
 
     while (true)
     {
-        SinalAberto();
-        A_state = WaitWithRead(8000); // espera com leitura do botäo
+        SinalFechado();
+        A_state = WaitWithRead(10000); // espera com leitura do botäo
         // sleep_ms(8000);
 
         if (A_state)
@@ -117,8 +117,8 @@ int main()
             sleep_ms(5000);
 
             // SINAL VERMELHO PARA OS CARROS POR 10s
-            SinalFechado();
-            sleep_ms(10000);
+            SinalAberto();
+            sleep_ms(8000);
         }
         else
         { // NINGUEM APERTOU O BOTAO - CONTINUA NO SEMAFORO NORMAL
@@ -127,8 +127,8 @@ int main()
             sleep_ms(2000);
 
             // SINAL VERMELHO PARA OS CARROS POR 15s
-            SinalFechado();
-            sleep_ms(8000);
+            SinalAberto();
+            sleep_ms(6000);
         }
     }
 
