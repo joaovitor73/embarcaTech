@@ -51,9 +51,9 @@ void SinalAberto()
 
 void SinalAtencao()
 {
-    gpio_put(LED_R_PIN, 1);
-    gpio_put(LED_G_PIN, 1);
-    gpio_put(LED_B_PIN, 0);
+    // gpio_put(LED_R_PIN, 1);
+    // gpio_put(LED_G_PIN, 1);
+    // gpio_put(LED_B_PIN, 0);
     printar_texto_na_tela("SINAL", "ATENCAO ", "PREPARE SE", "");
 }
 
@@ -107,7 +107,7 @@ int main()
     while (true)
     {
         SinalFechado();
-        A_state = WaitWithRead(10000); // espera com leitura do botäo
+        A_state = WaitWithRead(13000); // espera com leitura do botäo
         // sleep_ms(8000);
 
         if (A_state)
@@ -123,12 +123,12 @@ int main()
         else
         { // NINGUEM APERTOU O BOTAO - CONTINUA NO SEMAFORO NORMAL
 
-            SinalAtencao();
-            sleep_ms(2000);
+            // SinalAtencao();
+            // sleep_ms(2000);
 
             // SINAL VERMELHO PARA OS CARROS POR 15s
             SinalAberto();
-            sleep_ms(6000);
+            sleep_ms(8000);
         }
     }
 
