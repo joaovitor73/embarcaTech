@@ -37,6 +37,10 @@
     "raspberry-pi-pico.cmakePath": "${HOME}/.pico-sdk/cmake/v3.29.9/bin/cmake",
     "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
     "files.associations": {
-        "http_client.h": "c"
+        "http_client.h": "c",
+        "i2c.h": "c",
+        "button.h": "c",
+        "binary_info.h": "c",
+        "ssd1306.h": "c"
     }
 }
