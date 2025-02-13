@@ -29,6 +29,7 @@ volatile bool fimTempo = false;
 volatile bool isSessao = false;
 volatile bool buttonPressed = false;
 volatile bool stop_buzzer = false;
+volatile uint ciclos = 0;
 const uint I2C_SDA = 14;
 const uint I2C_SCL = 15;
 volatile bool desenhaInstrucao = false;
@@ -59,6 +60,18 @@ void desenha_tela_inicial()
     render_on_display(&ssd_buffer, &frame_area);
 }
 
+void reset_sessao()
+{
+    tempo = 60;
+    inicio = false;
+    fimTempo = false;
+    isSessao = false;
+    buttonPressed = false;
+    stop_buzzer = false;
+    ciclos = 0;
+    desenhaInstrucao = false;
+}
+
 void desenha_tela_monitor(int ciclos, char *mensagem)
 {
     reset_display();
@@ -76,8 +89,31 @@ void desenha_tela_monitor(int ciclos, char *mensagem)
     ssd1306_draw_string(&ssd_buffer, 5, 5, ciclos_str);
 
     // Exibir Mensagem no centro da tela
-    ssd1306_draw_string(&ssd_buffer, 25, 30, mensagem);
+    ssd1306_draw_string(&ssd_buffer, 30, 30, mensagem);
     ssd1306_draw_string(&ssd_buffer, 45, 55, "Btn A Sair");
+
+    render_on_display(&ssd_buffer, &frame_area);
+}
+
+void desenha_tela_final(bool venceu)
+{
+    reset_display();
+
+    char titulo[] = "Fim da Sessao";
+    char resultado[20];
+    char instrucao[] = "Clique Btn A";
+    char instrucao2[] = "para reiniciar";
+
+    // Define a mensagem de vitória ou derrota
+    if (venceu)
+        strcpy(resultado, "Voce Venceu!");
+    else
+        strcpy(resultado, "Tente Novamente!");
+
+    ssd1306_draw_string(&ssd_buffer, 20, 5, titulo);
+    ssd1306_draw_string(&ssd_buffer, 15, 20, resultado); // Exibe o resultado
+    ssd1306_draw_string(&ssd_buffer, 15, 40, instrucao);
+    ssd1306_draw_string(&ssd_buffer, 18, 55, instrucao2);
 
     render_on_display(&ssd_buffer, &frame_area);
 }
@@ -109,15 +145,8 @@ void btns_callback(uint gpio, uint32_t events)
             {
                 desenha_tela_inicial();
                 desenhaInstrucao = true;
+                reset_sessao();
             }
-        }
-        else if (gpio == BTN_B)
-        {
-            printf("Botão B acionado\n");
-        }
-        else if (gpio == BTN_STICK)
-        {
-            printf("Botão Stick acionado\n");
         }
         last_time = current_time; // Atualiza o tempo para o debounce
     }
@@ -169,12 +198,29 @@ bool repeating_timer_callback(struct repeating_timer *t)
 {
     if (isSessao)
     {
-        desenha_tela_monitor(1, "Inspire...");
+        ciclos = (60 - tempo) / 12;
+
+        // Define a fase correta com base no tempo restante
+        int fase = ((60 - tempo) % 12) / 4; // 0 = Inspire, 1 = Segure, 2 = Expire
+        const char *mensagem;
+
+        if (fase == 0)
+            mensagem = "Inspire...";
+        else if (fase == 1)
+            mensagem = "Segure...";
+        else
+            mensagem = "Expire...";
+
         if (tempo <= 0)
         {
             //   beep(BUZZER_PIN, 100);
+            desenha_tela_final(true);
             fimTempo = true;
             return true;
+        }
+        else
+        {
+            desenha_tela_monitor(ciclos, mensagem);
         }
 
         tempo = tempo - 1;
@@ -235,7 +281,6 @@ int main()
     // contador com temporizador
     struct repeating_timer timer;
     add_repeating_timer_ms(1000, repeating_timer_callback, NULL, &timer);
-
     while (true)
     {
         play_tone(BUZZER_PIN, 1000, 5000);
