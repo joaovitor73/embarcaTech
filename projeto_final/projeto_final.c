@@ -17,6 +17,9 @@
 #include "include/button.h"
 #include "include/timer.h"
 #include "include/display.h"
+#include "include/matriz.h"
+
+#include "neo_pixel.h"
 
 volatile uint tempo = 60;
 volatile bool inicio = false;
@@ -26,6 +29,7 @@ volatile bool buttonPressed = false;
 volatile bool stop_buzzer = false;
 volatile uint ciclos = 0;
 volatile bool desenhaInstrucao = false;
+volatile uint led_index = 0;
 
 int main()
 {
