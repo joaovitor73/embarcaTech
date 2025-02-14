@@ -1,11 +1,13 @@
-#include <stdio.h>            // Biblioteca padrão de entrada e saída
-#include "pico/stdlib.h"      // Biblioteca padrão do Pico
-#include "hardware/pio.h"     // Biblioteca de comunicação PIO
-#include "pico/cyw43_arch.h"  // Biblioteca de comunicação CYW43, para uso do WiFi
-#include "include/buzzer.h"   // Biblioteca de controle do buzzer
-#include "include/button.h"   // Biblioteca de controle dos botões
-#include "include/timer.h"    // Biblioteca de controle do timer
-#include "neo_pixel.h"        // Biblioteca de controle dos LEDs
+#include <stdio.h>                 // Biblioteca padrão de entrada e saída
+#include "pico/stdlib.h"           // Biblioteca padrão do Pico
+#include "hardware/pio.h"          // Biblioteca de comunicação PIO
+#include "pico/cyw43_arch.h"       // Biblioteca de comunicação CYW43, para uso do WiFi
+#include "include/buzzer.h"        // Biblioteca de controle do buzzer
+#include "include/button.h"        // Biblioteca de controle dos botões
+#include "include/timer.h"         // Biblioteca de controle do timer
+#include "neo_pixel.h"             // Biblioteca de controle dos LEDs
+#include "include/conexao_envio.h" // Biblioteca de controle da conexão e envio de dados
+#include "include/led_debug.h"     // Biblioteca de controle dos LEDs de debug
 
 volatile uint tempo = 60;               // Tempo da sessao 60 segundos
 volatile bool isSessao = false;         // Flag de sessao
@@ -14,78 +16,41 @@ volatile bool stop_buzzer = false;      // Flag de parada do buzzer
 volatile uint ciclos = 0;               // Ciclos de respiracao concliudos
 volatile bool desenhaInstrucao = false; // Flag de desenho de instrucao
 volatile uint led_index = 0;            // Indice do LED na matriz
-
-struct tcp_pcb *pcb; // Estrutura de controle do cliente
-struct repeating_timer timer_post; // Timer para envio de dados
-char request[200];// Buffer de requisição
-const char *text_request = "GET /update.json?api_key=OBED9VOECZ8RH5XF&field1=%d HTTP/1.1\r\n"
-                           "Host: api.thingspeak.com\r\n"
-                           "Connection: close\r\n\r\n"; // Texto da requisição
-
-ip_addr_t server_ip;
-bool send = false;
-
-bool repeating_timer_callback_post(struct repeating_timer *t)
-{
-    send = true;
-    return true;
-}
-
-void conecta_wifi();
-void ip_servidor();
-void send_dados();
+volatile uint duracao_sessao = -1;
 
 int main()
 {
-    stdio_init_all(); // Inicializa a comunicação serial
-    conecta_wifi();
-    ip_servidor();
-    add_repeating_timer_ms(10000, repeating_timer_callback_post, NULL, &timer_post);
-    setup_buttons();             // Configura os botões
-    pwm_init_buzzer(BUZZER_PIN); // Inicializa o buzzer
-    init_i2c();                  // Inicializa o display
-    reset_display();             // Reseta o display
-    desenha_tela_inicial();      // Desenha a tela inicial
-    setup_timer();               // Configura o timer
-
+    inicializa(); // Inicializa o sistema
     while (true)
     {
-        if (send)
+        reset_leds(); // Reseta os LEDs de debug
+        // Verifica se a sessão está ativa
+        if (send && duracao_sessao != -1)
         {
+            // envia dados somente quando o temporizador permite
+            debug_envio();
             send_dados();
+            duracao_sessao = -1;
         }
 
         play_tone(BUZZER_PIN, 1000, 5000); // Toca um tom no buzzer
-        printf("Hello, world!\n");         // Imprime uma mensagem no terminal, usado para debug
-        sleep_ms(1000);                    // Delay de 1 segundo
+        sleep_ms(10);                      // Aguarda 100ms
     }
 }
 
-void send_dados()
+void inicializa()
 {
-    snprintf(request, sizeof(request), text_request, tempo);
-
-    pcb = tcp_new();
-    client_create(pcb, &server_ip, 80);
-    client_write(pcb, request);
-    sleep_ms(100);
-    client_close(pcb);
-}
-
-void ip_servidor()
-{
-    resolve_name("api.thingspeak.com", &server_ip);
-    printf("IP resolvido: %s\n", ipaddr_ntoa(&server_ip));
-}
-
-void conecta_wifi()
-{
-    if (!connect_wifi("Infoway_Pedro", "Kupaki@j"))
-    {
-        printf("Falha ao conectar ao Wi-Fi\n");
-    }
-    else
-    {
-        printf("Conectado ao Wi-Fi\n");
-    }
+    stdio_init_all();                                                               // Inicializa a comunicação serial
+    setup_leds();                                                                   // Configura os LEDs de debug
+    debug_wifi();                                                                   // Acende o LED de debug do Wi-Fi
+    init_i2c();                                                                     // Inicializa o display
+    reset_display();                                                                // Reseta o display
+    desenha_tela_tentando_se_conectar();                                            // Desenha a tela de tentativa de conexão
+    conecta_wifi();                                                                 // Conecta ao Wi-Fi
+    ip_servidor();                                                                  // Resolve o IP do servidor
+    add_repeating_timer_ms(1000, repeating_timer_callback_post, NULL, &timer_post); // temporizador para o envio de dados para o servidor
+    setup_buttons();                                                                // Configura os botões
+    pwm_init_buzzer(BUZZER_PIN);                                                    // Inicializa o buzzer
+    desenha_tela_inicial();                                                         // Desenha a tela inicial
+    setup_timer();                                                                  // Configura o timer
 }

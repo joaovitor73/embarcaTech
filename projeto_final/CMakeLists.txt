@@ -42,6 +42,8 @@ src/button.c
 src/config.c
 neo_pixel.c
 src/client.c
+src/conexao_envio.c
+src/led_debug.c
 )
 
 pico_set_program_name(projeto_final "projeto_final")

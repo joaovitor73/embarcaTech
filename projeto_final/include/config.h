@@ -18,13 +18,13 @@
 #define BUZZER_FREQUENCY 100
 
 // Variáveis globais compartilhadas entre os módulos
-extern volatile uint tempo;            // Tempo da sessão 60 segundos
-extern volatile bool isSessao;         // Flag de sessão
-extern volatile bool buttonPressed;    // Flag de botão pressionado
-extern volatile bool stop_buzzer;      // Flag de parada do buzzer
-extern volatile uint ciclos;           // Ciclos de respiração concluídos
-extern volatile bool desenhaInstrucao; // Flag de desenho de instrução
-extern volatile uint led_index;        // Índice do LED na matriz
+extern volatile uint tempo;          // Tempo da sessão 60 segundos
+extern volatile bool isSessao;       // Flag de sessão
+extern volatile bool buttonPressed;  // Flag de botão pressionado
+extern volatile bool stop_buzzer;    // Flag de parada do buzzer
+extern volatile uint ciclos;         // Ciclos de respiração concluídos
+extern volatile uint led_index;      // Índice do LED na matriz
+extern volatile uint duracao_sessao; // Duração da sessão
 
 // Definição dos pinos usados na aplicação
 #define BTN_A 5       // Botão A
