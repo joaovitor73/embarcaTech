@@ -31,14 +31,6 @@ void setup_buttons()
     gpio_init(BTN_A);
     gpio_set_dir(BTN_A, GPIO_IN);
     gpio_pull_up(BTN_A);
-    gpio_init(BTN_B);
-    gpio_set_dir(BTN_B, GPIO_IN);
-    gpio_pull_up(BTN_B);
-    gpio_init(BTN_STICK);
-    gpio_set_dir(BTN_STICK, GPIO_IN);
-    gpio_pull_up(BTN_STICK);
     gpio_set_irq_enabled_with_callback(BTN_A, GPIO_IRQ_EDGE_FALL, true, btns_callback);
-    gpio_set_irq_enabled_with_callback(BTN_B, GPIO_IRQ_EDGE_FALL, true, btns_callback);
-    gpio_set_irq_enabled_with_callback(BTN_STICK, GPIO_IRQ_EDGE_FALL, true, btns_callback);
     printf("Botões configurados\n");
 }

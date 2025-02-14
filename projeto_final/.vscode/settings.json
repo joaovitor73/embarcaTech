@@ -41,6 +41,15 @@
         "i2c.h": "c",
         "button.h": "c",
         "binary_info.h": "c",
-        "ssd1306.h": "c"
+        "ssd1306.h": "c",
+        "matriz.h": "c",
+        "neo_pixel.h": "c",
+        "*.pio": "c",
+        "config.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "client.h": "c",
+        "post_thingspeak.h": "c"
     }
 }

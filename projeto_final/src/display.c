@@ -85,8 +85,8 @@ void desenha_tela_final(bool venceu)
         strcpy(resultado, "Tente Novamente!");
 
     ssd1306_draw_string(&ssd_buffer, 20, 5, titulo);
-    ssd1306_draw_string(&ssd_buffer, 15, 20, resultado);
-    ssd1306_draw_string(&ssd_buffer, 15, 40, instrucao);
+    ssd1306_draw_string(&ssd_buffer, 20, 20, resultado);
+    ssd1306_draw_string(&ssd_buffer, 15, 35, instrucao);
     ssd1306_draw_string(&ssd_buffer, 18, 55, instrucao2);
 
     render_on_display(&ssd_buffer, &frame_area);
